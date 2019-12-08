@@ -1,5 +1,6 @@
 use std::fs::File;
 use std::io::{BufReader, BufRead};
+use std::collections::HashSet;
 
 fn create_path(line: &Vec<String>) -> Vec<[i32; 2]> {
     let mut x = 0;
@@ -25,24 +26,15 @@ fn create_path(line: &Vec<String>) -> Vec<[i32; 2]> {
 }
 
 fn best_cross(path1: Vec<[i32; 2]>, path2: Vec<[i32; 2]>) -> u32 {
-    // not efficient, takes a couple of seconds, needs to be optimized
-    // (e.g. sort on second key)
-    let mut path1 = path1.clone();
-    let mut path2 = path2.clone();
-    path1.sort_by(|a, b| a[0].cmp(&b[0]));
-    path2.sort_by(|a, b| a[0].cmp(&b[0]));
-    let mut common: Vec<[i32; 2]> = Vec::new();
-    'outer: for c1 in &path1 {
-        for c2 in &path2 {
-            if c1 == c2 {
-                common.push(c1.clone());
-            }
-            if c2[0] > c1[0] {
-                break;
-            }
-        }
+    let mut set1: HashSet<[i32; 2]> = HashSet::new();
+    let mut set2: HashSet<[i32; 2]> = HashSet::new();
+    for x in &path1 {
+        set1.insert(x.clone());
     }
-    let mut distances: Vec<i32> = common.into_iter().map(|x| x[0].abs() + x[1].abs()).collect();
+    for x in &path2 {
+        set2.insert(x.clone());
+    }
+    let mut distances: Vec<i32> = set1.intersection(&set2).map(|x| x[0].abs() + x[1].abs()).collect();
     distances.sort_by(|a, b| a.partial_cmp(b).unwrap());
     distances[0] as u32
 }
