@@ -30,12 +30,12 @@ fn int_code(values: &mut Vec<i32>) {
             break;
         }
         let abcde = format!("{:0>5}", values[i].to_string());
-        println!("{}", abcde);
         let de: u32 = abcde[3..5].parse().unwrap();
         let c: u32 = abcde[2..3].parse().unwrap();
         let b: u32 = abcde[1..2].parse().unwrap();
         let a: u32 = abcde[0..1].parse().unwrap();
         let modes = [c, b, a];
+        println!("{}", abcde);
         match de {
             1 => {
                 let index_to_write = get_index(&values, &modes, 3, i);
@@ -57,11 +57,43 @@ fn int_code(values: &mut Vec<i32>) {
                 println!("--> {}", values[index_to_read]);
                 i += 2;
             },
+            5 => {
+                if values[get_index(&values, &modes, 1, i)] != 0 {
+                    i = values[get_index(&values, &modes, 2, i)] as usize;
+                } else {
+                    i += 3;
+                }
+            },
+            6 => {
+                if values[get_index(&values, &modes, 1, i)] == 0 {
+                    i = values[get_index(&values, &modes, 2, i)] as usize;
+                } else {
+                    i += 3;
+                }
+            },
+            7 => {
+                let index_to_write = get_index(&values, &modes, 3, i);
+                if values[get_index(&values, &modes, 1, i)] < values[get_index(&values, &modes, 2, i)] {
+                    values[index_to_write] = 1;
+                } else {
+                    values[index_to_write] = 0;
+                }
+                i += 4;
+            },
+            8 => {
+                let index_to_write = get_index(&values, &modes, 3, i);
+                if values[get_index(&values, &modes, 1, i)] == values[get_index(&values, &modes, 2, i)] {
+                    values[index_to_write] = 1;
+                } else {
+                    values[index_to_write] = 0;
+                }
+                i += 4;
+            }
             99 => {
                 break;
             },
             _ => {
-                panic!("Uknow OP code {}", i);
+                panic!("Uknow OP code {}", de);
             }
         }
     }
@@ -74,8 +106,8 @@ fn main() {
     let original: Vec<i32> = text.split(",")
         .map(|x| x.parse().unwrap())
         .collect();
-    // part 1
+    // part 2 
     let mut values = original.clone();
     println!("{:?}", values);
-    int_code(&mut values); // --> 4887191
+    int_code(&mut values); // --> 3419022
 }
