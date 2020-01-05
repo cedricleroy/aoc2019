@@ -15,19 +15,34 @@ fn main() {
     for line in results {
         map.insert(line[1].clone(), line[0].clone());
     }
+    // part1
     let mut orbits = 0;
     for key in map.keys() {
-        orbits += calculate(0, key, &map);
+        orbits += calculate_path(0, key, &map, Vec::new()).last().unwrap().1 + 1;
     }
     println!("{:?}", orbits);
+    // part2
+    let my_path = calculate_path(0, "YOU", &map, Vec::new());
+    let santa_path = calculate_path(0, "SAN", &map, Vec::new());
+    'outer: for (key1, steps1) in &my_path {
+        for (key2, steps2) in &santa_path {
+            if key1 == key2 {
+                println!("{:?}", key1);
+                println!("{:?}", steps1 + steps2 - 2);
+                break 'outer;
+            }
+        }
+    }
 }
 
 
-fn calculate(steps: u32, name: &str, map: &HashMap<String, String>) -> u32 {
+fn calculate_path(steps: u32, name: &str, map: &HashMap<String, String>, mut path: Vec<(String, u32)>) -> Vec<(String, u32)> {
     if name == "COM" {
-        return steps;
+        return path;
     }
+    path.push((name.to_string(), steps));
     let new_steps = steps + 1;
     let new_name = map.get(name).unwrap();
-    calculate(new_steps, new_name, map)
+    calculate_path(new_steps, new_name, map, path)
 }
+
